@@ -1,252 +1,307 @@
-<!DOCTYPE html>
-<html lang="nl">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Under Construction - Watt IV</title>
+    <title>Watt IV - The Landing</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=block" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;display=swap" rel="stylesheet">
     <style>
         :root {
-            --secondary: #A0B5CB;
-            --quaternary: #C95538;
-            --background-dark: #1f1f1f;
-            --sandy-dunes: #efe7dd;
-            --neutral-light: #f5f5f5;
+            --moon-grey: #c0c0c0;
+            --moon-shadow: #4a4a4a;
+            --watt-orange: #FF6038;
+            --earth-blue: #4a90e2;
         }
 
-        *,
-        *::before,
-        *::after {
-            box-sizing: border-box;
-        }
-
-        html,
-        body {
+        body,
+        html {
             margin: 0;
-            height: 100%;
+            padding: 0;
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
             overflow: hidden;
         }
 
-        body {
-            background: var(--background-dark);
-            font-family: "Courier New", Courier, monospace;
-            color: var(--neutral-light);
+        /* A4 Portrait Ratio Container */
+        .poster-canvas {
+            width: 100vw;
+            height: 297mm;
+            position: relative;
+            background-color: #000;
+            box-shadow: 0 0 100px rgba(0, 0, 0, 1);
+            overflow: hidden;
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
         }
 
-        .construction-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 40px;
-            position: relative;
-        }
-
-        .logo-wrapper {
-            position: relative;
-            width: 200px;
-            height: 200px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        svg.logo {
-            z-index: 2;
-            background: var(--quaternary);
-            padding: 20px;
-            border-radius: 50%;
-            width: 100px;
-            height: 100px;
-            box-shadow: 0px 3px 5px -1px rgba(0, 0, 0, 0.2),
-                0px 6px 10px 0px rgba(0, 0, 0, 0.14),
-                0px 1px 18px 0px rgba(0, 0, 0, .12);
-            transition: transform 0.3s ease;
-            overflow: visible;
-        }
-
-        @keyframes logo-pulse {
-            0% {
-                transform: scale(1);
-                box-shadow: 0 0 0 0 rgba(255, 96, 56, 0.4);
-            }
-
-            70% {
-                transform: scale(1.03);
-                box-shadow: 0 0 0 80px rgba(255, 96, 56, 0);
-            }
-
-            100% {
-                transform: scale(1);
-                box-shadow: 0 0 0 0 rgba(255, 96, 56, 0);
-            }
-        }
-
-        svg.logo {
-            animation: logo-pulse 3s infinite ease-in-out;
-        }
-
-        svg.logo:hover {
-            transform: rotate(10deg);
-        }
-
-        svg.text {
+        /* SPACE BACKGROUND with Earth-rise */
+        .space-bg {
             position: absolute;
-            top: 50%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                /* Stars */
+                radial-gradient(1px 1px at 10% 10%, #fff, transparent),
+                radial-gradient(1px 1px at 20% 40%, #fff, transparent),
+                radial-gradient(1.5px 1.5px at 50% 20%, rgba(255, 255, 255, 0.8), transparent),
+                radial-gradient(1px 1px at 80% 30%, #fff, transparent),
+                radial-gradient(1.2px 1.2px at 90% 10%, #fff, transparent),
+                /* Deep Space */
+                linear-gradient(to bottom, #000 0%, #050505 70%);
+            z-index: 1;
+        }
+
+        /* THE EARTH IN THE DISTANCE */
+        .earth {
+            position: absolute;
+            top: 50px;
+            right: 50px;
+            width: 170px;
+            height: 170px;
+            background: url("earth.png") no-repeat center center / contain;
+            /* background: radial-gradient(circle at 30% 30%, var(--earth-blue), #001a33); */
+            border-radius: 50%;
+            box-shadow: -10px -10px 30px rgba(74, 144, 226, 0.2);
+            z-index: 2;
+            opacity: 0.9;
+            filter: blur(2px);
+        }
+
+        /* LUNAR SURFACE */
+        .lunar-floor {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 35%;
+            background:
+                /* Crater texture hints */
+                radial-gradient(circle at 20% 50%, var(--moon-shadow), transparent 10%),
+                radial-gradient(circle at 70% 30%, var(--moon-shadow), transparent 15%),
+                linear-gradient(to bottom, #666 0%, #333 100%);
+            z-index: 5;
+            border-top: 2px solid rgba(255, 255, 255, 0.1);
+            filter: blur(1px);
+        }
+
+        /* Dusty texture for the moon */
+        .lunar-floor::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            opacity: 0.15;
+            pointer-events: none;
+        }
+
+        /* THE LANDING COMPUTER */
+        .product-area {
+            position: absolute;
+            top: 55%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 220px;
-            height: 220px;
-            z-index: 1;
+            width: 80%;
+            z-index: 20;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            animation: floating 4s ease-in-out infinite;
+        }
+
+        @keyframes floating {
+
+            0%,
+            100% {
+                transform: translate(-50%, -50%);
+            }
+
+            50% {
+                transform: translate(-50%, -55%);
+            }
+        }
+
+        .main-product {
+            width: 500px;
+            height: auto;
+            filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.2));
+        }
+
+        /* Thruster / Landing Light */
+        .landing-light {
+            width: 100%;
+            height: 150px;
+            background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.4) 0%, transparent 70%);
+            position: absolute;
+            bottom: -50px;
+            z-index: 15;
+            filter: blur(20px);
+        }
+
+        /* Landing Shadow */
+        .lunar-shadow {
+            width: 300px;
+            height: 30px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 50%;
+            position: absolute;
+            bottom: 5%;
+            left: 41%;
+            z-index: 6;
+            filter: blur(20px);
+            animation: shadow-scale 4s ease-in-out infinite;
+        }
+
+        @keyframes shadow-scale {
+
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 0.7;
+            }
+
+            50% {
+                transform: scale(0.8);
+                opacity: 0.4;
+            }
+        }
+
+        /* TYPOGRAPHY */
+        .content {
+            position: relative;
+            z-index: 100;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 60px;
             pointer-events: none;
-            animation: spin-rotate 20s linear infinite;
-        }
-
-        svg.text path {
-            transform-origin: center;
-        }
-
-        @keyframes spin-rotate {
-            from {
-                transform: translate(-50%, -50%) rotate(0deg);
-            }
-
-            to {
-                transform: translate(-50%, -50%) rotate(360deg);
-            }
         }
 
         h1 {
-            font-family: "Instrument Serif", serif;
-            font-size: 4rem;
+            font-family: 'Instrument Serif', serif;
+            font-size: 6.5rem;
+            line-height: 0.85;
             margin: 0;
             font-weight: 400;
-            color: var(--neutral-light);
+            letter-spacing: -3px;
+            color: #fff;
+            text-align: center;
         }
 
         p {
-            font-size: 1.2rem;
-            max-width: 600px;
-            line-height: 1.6;
-            color: var(--secondary);
-            margin-top: 10px;
+            text-align: center;
+            color: white;
+            font-size: 1.5rem;
+            font-family: 'courier new', serif;
         }
 
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 2.5rem;
-            }
-
-            p {
-                padding: 0 20px;
-                font-size: 1rem;
-            }
-
-            .social-icons {
-                flex-direction: column;
-                gap: 20px;
-            }
+        .bottom-copy {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            color: #ddd;
+            margin-bottom: 40px;
         }
 
-        .social-icons {
+        .body-text {
+            font-size: 0.95rem;
+            line-height: 1.4;
+            font-family: "Georgia", serif;
+            text-align: justify;
+        }
+
+        .brand-footer {
             display: flex;
-            gap: 25px;
+            justify-content: flex-end;
             align-items: center;
-            margin-top: 40px;
-            flex-wrap: wrap;
-            justify-content: center;
+            gap: 15px;
         }
 
-        .social-icons a {
-            color: var(--sandy-dunes);
-            opacity: 0.7;
-            transition: all 0.2s;
+        .brand-text {
+            font-family: 'Instrument Serif', serif;
+            font-size: 2rem;
+            color: #fff;
+        }
+
+        .watt-logo {
+            width: 45px;
+            height: 45px;
+            background: var(--watt-orange);
+            border-radius: 50%;
             display: flex;
-            align-items: center;
             justify-content: center;
-            text-decoration: none;
-            gap: 8px;
-            font-size: 0.9rem;
+            align-items: center;
+            pointer-events: auto;
+        }
+
+        .watt-logo span {
+            color: white;
             font-weight: bold;
+            font-size: 1rem;
         }
 
-        .social-icons a:hover {
-            opacity: 1;
-            transform: translateY(-2px);
-            color: var(--quaternary);
+        .disclaimer {
+            position: absolute;
+            bottom: 25px;
+            left: 60px;
+            font-family: monospace;
+            font-size: 0.6rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
     </style>
 </head>
 
 <body>
 
-    <div class="construction-container">
+    <div class="poster-canvas">
+        <div class="space-bg"></div>
+        <div class="earth"></div>
+        <div class="lunar-floor"></div>
+        <div class="lunar-shadow"></div>
 
-        <div class="logo-wrapper">
-            <svg class="logo" xmlns="http://www.w3.org/2000/svg"
-                xmlns:shaper="http://www.shapertools.com/namespaces/shaper" shaper:fusionaddin="version:1.8.0"
-                xml:space="preserve" viewBox="0 0 91.41 55.405">
-                <path fill="white"
-                    d="m65.73 54.103 25.345-43.9a2.5 2.5 0 0 0-.915-3.414L78.982.335a2.5 2.5 0 0 0-3.415.915L60.17 27.916a1 1 0 0 1-1.732 0l-5.108-8.849a5 5 0 0 0-4.33-2.5H35.54a2.5 2.5 0 0 0-2.166 3.75l14.912 25.83a5 5 0 0 0 1.83 1.83l12.197 7.041a2.5 2.5 0 0 0 3.415-.915zM41.19 45.2 15.843 1.302a2.5 2.5 0 0 0-3.415-.915L1.25 6.84a2.5 2.5 0 0 0-.915 3.415l25.345 43.9a2.5 2.5 0 0 0 3.415.915l11.18-6.454a2.5 2.5 0 0 0 .914-3.415z">
+        <div class="content">
+            <div class="headline">
+                <h1>Hang in there.</h1>
+                <p>Mission postponed to tomorrow.</p>
+            </div>
 
-                </path>
-            </svg>
 
-            <svg class="text" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                <path id="circlePath" fill="none" d="
-                    M 14, 50
-                    a 36,36 0 1,1 72,0
-                    36,36 0 1,1 -72,0
-                "></path>
-                <text fill="#f5f5f5" font-size="10.5" letter-spacing="1.2">
-                    <textPath href="#circlePath" textLength="220">Watt IV • Watt IV • Watt IV • </textPath>
-                </text>
-            </svg>
+
+            <div class="brand-footer">
+                <div class="brand-text">Watt IV.</div>
+                <div class="watt-logo"> <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25"
+                        viewBox="0 0 91.41 55.405" fill="white">
+                        <path
+                            d="m65.73 54.103 25.345-43.9a2.5 2.5 0 0 0-.915-3.414L78.982.335a2.5 2.5 0 0 0-3.415.915L60.17 27.916a1 1 0 0 1-1.732 0l-5.108-8.849a5 5 0 0 0-4.33-2.5H35.54a2.5 2.5 0 0 0-2.166 3.75l14.912 25.83a5 5 0 0 0 1.83 1.83l12.197 7.041a2.5 2.5 0 0 0 3.415-.915zM41.19 45.2 15.843 1.302a2.5 2.5 0 0 0-3.415-.915L1.25 6.84a2.5 2.5 0 0 0-.915 3.415l25.345 43.9a2.5 2.5 0 0 0 3.415.915l11.18-6.454a2.5 2.5 0 0 0 .914-3.415z">
+                        </path>
+                    </svg></div>
+            </div>
         </div>
 
-        <h1>Under Construction</h1>
-        <p>The next chapter begins this Sunday, February 15th. <br><br>Stay tuned.</p>
+        <!-- LANDING PRODUCT -->
+        <div class="product-area">
+            <img src="Benny.png" alt="WATT-IV-01 Terminal" class="main-product">
 
-
-        <div class="social-icons">
-            <a href="https://makerworld.com/en/@WattIV" target="_blank" title="Makerworld">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path
-                        d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
-                    </path>
-                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-                    <line x1="12" y1="22.08" x2="12" y2="12"></line>
-                </svg>
-                <span>Makerworld</span>
-            </a>
-            <a href="https://x.com/Watt__IV" target="_blank" title="X (Twitter)">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                    <path
-                        d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z">
-                    </path>
-                </svg>
-                <span>X / Twitter</span>
-            </a>
-            <a href="https://www.linkedin.com/company/wattiv" target="_blank" title="LinkedIn">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z">
-                    </path>
-                    <rect x="2" y="9" width="4" height="12"></rect>
-                    <circle cx="4" cy="4" r="2"></circle>
-                </svg>
-                <span>LinkedIn</span>
-            </a>
         </div>
+
+        <div class="disclaimer">
+            WATT IV SYSTEMS • MISSION CONTROL • ©1984 WATT IV • MODEL 01-A • SPACEMEN SOLD SEPARATELY.
+        </div>
+
     </div>
+
+
 
 </body>
 
