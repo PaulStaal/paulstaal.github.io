@@ -1,1 +1,1 @@
-# paulstaal.github.io
+# Putting the funk back in functional.
