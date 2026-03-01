@@ -42,27 +42,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // --- Copy Email Functionality ---
-    const copyEmailBtn = document.getElementById('copy-email');
-    const copyFeedback = document.querySelector('.copy-feedback');
-
-    if (copyEmailBtn && copyFeedback) {
-        copyEmailBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            // The email address to copy
-            const email = "ps.staal@gmail.com";
-
-            navigator.clipboard.writeText(email).then(() => {
-                copyFeedback.classList.add('is-visible');
-
-                setTimeout(() => {
-                    copyFeedback.classList.remove('is-visible');
-                }, 2000);
-            }).catch(err => {
-                console.error('Failed to copy: ', err);
-            });
-        });
-    }
 
     // --- Footer Slogan Glitch Cycling ---
     const footerSlogans = [
