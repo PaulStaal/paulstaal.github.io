@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="icon" type="image/svg+xml" href="/images/favicon.svg" />
+    <title>Watt IV - KITT Audio Visualizer</title>
+    <style>
+        body {
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Courier New', Courier, monospace;
+            overflow: hidden;
+        }
+
+        .controls {
+            position: absolute;
+            top: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+
+        .btn {
+            background: #111;
+            /* opacity: 0; */
+            border: 1px solid #400;
+            padding: 12px 20px;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-size: 11px;
+            letter-spacing: 2px;
+            color: #f00;
+        }
+
+        .btn:hover {
+            background: #300;
+            border-color: #f00;
+            opacity: 1;
+        }
+
+        .vox-container {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            padding: 20px;
+            /* border: 1px solid #222;
+            border-radius: 4px; */
+        }
+
+        .vox-column {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        /* The "Off" State: Deep dark red based on your image */
+        .vox-bar {
+            width: 60px;
+            height: 10px;
+            background: #200;
+            border-radius: 1px;
+            transition: background 0.08s ease-out, box-shadow 0.08s ease-out;
+        }
+
+        .vox-column.center .vox-bar {
+            /* width: 95px;
+            height: 12px; */
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="controls">
+        <button class="btn" id="micBtn">Activate Mic</button>
+        <button class="btn" id="testBtn">System Test</button>
+    </div>
+
+    <audio id="chromeFix" muted autoplay></audio>
+
+    <div class="vox-container">
+        <div class="vox-column" id="col-0"></div>
+        <div class="vox-column center" id="col-1"></div>
+        <div class="vox-column" id="col-2"></div>
+    </div>
+
+    <script>
+        const cols = [document.getElementById('col-0'), document.getElementById('col-1'), document.getElementById('col-2')];
+        let audioCtx, analyser, dataArray;
+        let testMode = false;
+        let testPhase = 0;
+
+        // Initialize 16 bars per column
+        cols.forEach(col => {
+            for (let i = 0; i < 16; i++) {
+                const bar = document.createElement('div');
+                bar.className = 'vox-bar';
+                col.appendChild(bar);
+            }
+        });
+
+        function updateVox(volume) {
+            const sens = [1.8, 2.6, 1.8]; // Middle column is much more active/sensitive
+
+            cols.forEach((col, colIdx) => {
+                const bars = col.querySelectorAll('.vox-bar');
+                const boosted = volume * sens[colIdx];
+
+                bars.forEach((bar, index) => {
+                    const dist = Math.abs(index - 7.5); // Distance from center 
+                    const threshold = dist * 20;
+
+                    // "Analog" Intensity: allows partial red glow (less than 100%)
+                    let intensity = (boosted - threshold) / 45;
+                    intensity = Math.max(0, Math.min(1, intensity));
+
+                    if (intensity > 0.05) {
+                        bar.style.background = `rgba(255, 0, 0, ${0.4 + (intensity * 0.6)})`;
+                        bar.style.boxShadow = `0 0 ${12 * intensity}px rgba(255, 0, 0, ${intensity})`;
+                    } else {
+                        bar.style.background = '#200';
+                        bar.style.boxShadow = 'none';
+                    }
+                });
+            });
+        }
+
+        async function startMic() {
+            testMode = false;
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+
+                // Chrome Fix: attach stream to an actual (muted) element
+                document.getElementById('chromeFix').srcObject = stream;
+
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioCtx.createAnalyser();
+                const source = audioCtx.createMediaStreamSource(stream);
+                analyser.fftSize = 256;
+                source.connect(analyser);
+                dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+                const loop = () => {
+                    if (testMode) return;
+                    analyser.getByteFrequencyData(dataArray);
+                    let sum = 0;
+                    for (let i = 0; i < dataArray.length; i++) sum += dataArray[i];
+                    updateVox((sum / dataArray.length) * 2.5); // Boost gain for visuals
+                    requestAnimationFrame(loop);
+                };
+                loop();
+            } catch (e) {
+                alert("Mic error: Check HTTPS or Browser Permissions.");
+            }
+        }
+
+        function toggleTest() {
+            testMode = !testMode;
+            if (testMode) {
+                const animateTest = () => {
+                    if (!testMode) return;
+                    testPhase += 0.2;
+                    // Multi-sine wave mimics speech patterns
+                    const mockVol = (Math.sin(testPhase) * 35) + (Math.sin(testPhase * 0.4) * 15) + 50;
+                    updateVox(mockVol);
+                    requestAnimationFrame(animateTest);
+                };
+                animateTest();
+            }
+        }
+
+        document.getElementById('micBtn').addEventListener('click', startMic);
+        document.getElementById('testBtn').addEventListener('click', toggleTest);
+    </script>
+</body>
+
+</html>
